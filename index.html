@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glam Noir by Thea | High-End Makeup & Hair Artist</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts: Playfair Display (Serif Display) and Inter (Sans Body) --><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Tailwind Configuration (Removed hardcoded colors for variables) */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif-display': ['Playfair Display', 'serif'],
+                        'sans-body': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+
+        /* --- THEME COLORS (CSS Variables) --- */
+        /* NOTE: The hero button uses hardcoded pink Tailwind classes for fixed vibrant color. */
+        :root {
+            /* Default to Dark Mode (Noir) */
+            --color-bg: #111111;
+            --color-text: #ffffff;
+            --color-accent: #F7A8B8; /* Satin Pink (Used in headers/links) */
+            --color-bg-secondary: rgba(255, 255, 255, 0.05);
+            --color-text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        .light {
+            --color-bg: #F5F5F5;
+            --color-text: #111111;
+            --color-accent: #A05263; /* Muted Rose/Deep Pink for contrast on light BG */
+            --color-bg-secondary: #FFFFFF;
+            --color-text-secondary: rgba(17, 17, 17, 0.7);
+        }
+
+        /* Utility Classes using CSS Variables */
+        .bg-primary { background-color: var(--color-bg); }
+        .bg-secondary { background-color: var(--color-bg-secondary); }
+        .text-main { color: var(--color-text); }
+        .text-accent { color: var(--color-accent); }
+        .text-secondary { color: var(--color-text-secondary); }
+        .border-accent\/30 { border-color: color-mix(in srgb, var(--color-accent), transparent 70%); }
+
+        /* Use variables in custom CSS */
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            transition: background-color 0.5s ease; /* Smooth mode transition */
+        }
+
+        /* Gradient Divider Motif */
+        .gradient-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--color-accent), transparent);
+        }
+
+        /* Hover Reveal Caption for Gallery Items */
+        .gallery-item-caption {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out, background-color 0.3s ease;
+            pointer-events: none;
+            background-color: var(--color-accent); /* Accent background */
+        }
+        .gallery-item:hover .gallery-item-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Touch/Focus state fallback */
+        .gallery-item:active .gallery-item-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .gallery-item-caption p {
+            color: var(--color-bg); /* Text must contrast accent background */
+        }
+
+
+        /* Fade-in Transition on Scroll (JS controlled) */
+        .fade-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+            will-change: opacity, transform;
+        }
+        .fade-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom style for the header background using variable + transparency */
+        .header-bg {
+            background-color: color-mix(in srgb, var(--color-bg), transparent 20%);
+        }
+
+        /* Custom style for the hero overlay to mute the image slightly */
+        .hero-overlay {
+            /* Adjusted to transparent 25% for high opacity (75% opaque) for better text contrast */
+            background: color-mix(in srgb, var(--color-bg), transparent 25%);
+        }
+        
+        /* Full Portfolio Page Styling */
+        #editorial-page {
+            display: none; /* Hidden by default, shown by JS routing */
+            padding-top: 5rem; /* Space for the fixed header */
+            min-height: 100vh;
+        }
+        #editorial-page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-primary text-main font-sans-body">
+
+    <!-- Header & Navigation --><header class="fixed top-0 left-0 right-0 z-50 header-bg backdrop-blur-sm shadow-xl shadow-black/50 transition-all duration-500" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo Link now points to #hero (Home) -->
+            <a href="#hero" class="text-2xl font-serif-display font-bold text-accent tracking-widest transition duration-300 hover:text-main">GLAM NOIR</a>
+            <nav class="hidden md:flex space-x-8 text-sm uppercase tracking-wider text-main/80">
+                <!-- Navigation links use section IDs for smooth scrolling on landing page OR the #full-portfolio hash -->
+                <a href="#full-portfolio" class="nav-link" id="nav-full-portfolio">Full Portfolio</a>
+                <a href="#beauty_services" class="nav-link">Private Artistry</a>
+                <a href="#about" class="nav-link">About Thea</a>
+                <a href="#reviews" class="nav-link">Reviews</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+            <!-- Theme Toggle & Mobile Menu Button Container --><div class="flex items-center space-x-4">
+                <!-- Theme Toggle Button --><button id="theme-toggle" class="p-2 rounded-full transition duration-300">
+                    <!-- Icon placeholder, populated by JS --></button>
+                <!-- Mobile Menu Button --><button id="mobile-menu-button" class="md:hidden text-accent p-2 rounded-lg hover:bg-accent/10 transition duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu (Hidden by Default) --><div id="mobile-menu" class="hidden md:hidden bg-primary/95">
+            <nav class="flex flex-col space-y-2 p-4 text-center uppercase tracking-wider border-t border-main/10 text-main/80">
+                <!-- REMOVED MOBILE FEATURED LINK -->
+                <a href="#full-portfolio" class="mobile-nav-link">Full Portfolio</a>
+                <a href="#beauty_services" class="mobile-nav-link">Private Artistry</a>
+                <a href="#about" class="mobile-nav-link">About Thea</a>
+                <a href="#reviews" class="mobile-nav-link">Reviews</a>
+                <a href="#contact" class="mobile-nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        
+        <!-- 1. FULL LANDING PAGE CONTENT (Hidden when viewing Full Portfolio) -->
+        <div id="landing-page-content" class="pt-[5rem]">
+            
+            <!-- 1. Hero Section (Home Page) -->
+            <section id="hero" class="relative h-screen -mt-[5rem] flex items-center justify-center text-center overflow-hidden">
+                <!-- Negative margin compensates for the main content padding, ensuring hero stays full height -->
+                <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760725189/High-Sleek_Hairstyke_dbl3s7.png"
+                     alt="Glam Noir Cinematic Makeup Look"
+                     class="absolute inset-0 w-full h-full object-cover"
+                     onerror="this.onerror=null; this.src='https://placehold.co/1200x800/111111/F7A8B8?text=Glam+Noir+Hero+Image';" />
+
+                <div class="hero-overlay absolute inset-0"></div>
+
+                <div class="relative z-10 p-6 fade-on-scroll is-visible"> <!-- Always visible first time --><h1 class="text-5xl sm:text-7xl lg:text-8xl font-serif-display font-extralight italic leading-none mb-4 text-main drop-shadow-lg">
+                        Glam Noir <span class="block text-accent font-bold">by Thea</span>
+                    </h1>
+                    <p class="text-base sm:text-xl tracking-widest uppercase font-light max-w-lg mx-auto mb-10 text-main/90">
+                        Cinematic Beauty. Red Carpet Elegance.
+                    </p>
+                    
+                    <!-- RECTANGULAR PINK GLOWING CTA BUTTON (Now Pastel Pink) --><div class="inline-block rounded-[20px] bg-pink-300 shadow-2xl shadow-pink-300/70 transition duration-500 transform hover:scale-[1.05] hover:shadow-3xl hover:shadow-pink-400 hover:opacity-95">
+                        <a href="#full-portfolio" class="block px-10 py-4 text-black text-sm uppercase tracking-widest font-medium rounded-[20px]">
+                            View Full Portfolio
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Featured Work Section (Restored) -->
+            <section id="featured" class="py-20 sm:py-32 max-w-7xl mx-auto px-4 fade-on-scroll">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">Featured Work</h2>
+                    <p class="text-lg text-secondary max-w-2xl mx-auto">A selection of our most requested and high-impact looks.</p>
+                    <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 portfolio-grid">
+                    <!-- Duplicated from Editorial Work for Featured Section -->
+                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729620/Editorial_Look_xq68om.png"
+                             alt="High Fashion Editorial Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Featured+Look+1';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Editorial Feature</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729586/Softie_Editorial_ji4wdy.png"
+                             alt="Muted Glow Make-up"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Featured+Look+2';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Muted Glow</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729589/Fierce_Look_ikp1mb.png"
+                             alt="Fierce Editorial Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Featured+Look+3';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Fierce Look</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- REMOVED: View Full 6-Item Portfolio Button -->
+            </section>
+
+            
+            <!-- 3. Private Client Artistry Section (formerly Bridal) -->
+            <section id="beauty_services" class="py-20 sm:py-32 bg-primary fade-on-scroll">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">Private Client Artistry</h2>
+                        <p class="text-lg text-secondary max-w-2xl mx-auto">Bespoke styling and personalized glamour for any special event.</p>
+                        <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-12 items-center">
+                        <div class="space-y-6 text-lg fade-on-scroll">
+                            <p>Beyond editorial and runway, we offer personalized services for any significant occasion—from exclusive galas and photoshoots to private consultations. Every appointment is a bespoke journey focused on achieving your ideal look with precision and luxury products.</p>
+                            <p class="italic text-accent">Whether you need a signature smoky eye for a premiere or refined elegance for a gala, we craft a look that ensures you command attention.</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4 mt-6 text-main/80">
+                                <li>Red Carpet/Gala Styling</li>
+                                <li>Custom Photoshoot Makeup</li>
+                                <li>Private Consultation & Lessons</li>
+                                <li>High-End Bridal Packages</li>
+                            </ul>
+                            <a href="#contact" class="inline-block mt-8 text-accent border border-accent/70 px-6 py-2 rounded-full text-sm uppercase tracking-widest hover:bg-accent hover:text-primary transition duration-300">
+                                Book A Consultation
+                            </a>
+                        </div>
+                        <div class="relative rounded-lg overflow-hidden shadow-2xl fade-on-scroll">
+                            <!-- Replaced image with new URL --><img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760730824/Private_Client_Artistry_rzsvok.png"
+                                 alt="Elegant Private Client Makeup"
+                                 class="w-full object-cover rounded-lg"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/800x600/111111/F7A8B8?text=Private+Client+Artistry';" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. About Thea Section -->
+            <section id="about" class="py-20 sm:py-32 bg-secondary fade-on-scroll">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">About Thea</h2>
+                        <p class="text-lg text-secondary max-w-2xl mx-auto">The vision behind the brush, dedicated to artistry and precision.</p>
+                        <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-12 items-start">
+                        <div class="md:col-span-1 rounded-lg overflow-hidden shadow-2xl fade-on-scroll">
+                            <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729582/Long_Hairstyle_sfvt91.png"
+                                 alt="Portrait of Thea, the Artist"
+                                 class="w-full object-cover h-auto"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x800/111111/F7A8B8?text=Thea+Portrait';" />
+                        </div>
+                        <div class="md:col-span-2 text-lg space-y-6 fade-on-scroll">
+                            <p class="text-2xl font-serif-display italic font-medium text-main">"Beauty is not about transformation, but illumination."</p>
+                            <p>With a decade of experience spanning Paris Fashion Week, major film sets, and exclusive celebrity red carpets, Thea brings a cinematic perspective to every face. Her signature style, "Glam Noir," is defined by clean lines, rich color saturation, and the perfect blend of high-fashion structure with soft, feminine glow.</p>
+                            <p>Thea believes in meticulous preparation and a tailored approach, ensuring every client feels authentically themselves, only elevated. Her work has been featured in Vogue, Harper's Bazaar, and numerous global advertising campaigns. Collaboration is at the heart of her process, working closely with designers and photographers to realize the full artistic vision.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Collaborations Section -->
+            <section id="collaborations" class="py-20 sm:py-32 max-w-7xl mx-auto px-4 fade-on-scroll">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-serif-display italic font-light text-accent mb-4">Collaborations</h2>
+                    <p class="text-lg text-secondary max-w-4xl mx-auto">Highlighting our recent, high-profile projects with leading fashion houses, photographers, and luxury brands worldwide.</p>
+                    <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Collaboration Card 1: Fashion Campaign --><div class="bg-secondary p-6 rounded-lg shadow-xl border border-accent/30 hover:shadow-accent/20 transition duration-500 fade-on-scroll">
+                        <p class="text-accent text-sm uppercase tracking-widest font-bold mb-1">High Fashion</p>
+                        <h3 class="text-2xl font-serif-display font-medium mb-3 text-main">The Chroma Collection</h3>
+                        <p class="text-main/80 text-sm">A four-city runway and print campaign for LUXE Apparel, focusing on bold color theory and structured hair artistry.</p>
+                        <p class="mt-4 text-xs italic text-secondary">— Featured in Global Vogue</p>
+                    </div>
+
+                    <!-- Collaboration Card 2: Celebrity Red Carpet --><div class="bg-secondary p-6 rounded-lg shadow-xl border border-accent/30 hover:shadow-accent/20 transition duration-500 fade-on-scroll">
+                        <p class="text-accent text-sm uppercase tracking-widest font-bold mb-1">Celebrity Artistry</p>
+                        <h3 class="text-2xl font-serif-display font-medium mb-3 text-main">Gala Premiere Look</h3>
+                        <p class="text-main/80 text-sm">Bespoke makeup and hair for actress J. Rivas for the Cannes Film Festival opening night, emphasizing a soft cinematic glow.</p>
+                        <p class="mt-4 text-xs italic text-secondary">— Red Carpet Exclusive</p>
+                    </div>
+
+                    <!-- Collaboration Card 3: Editorial Shoot --><div class="bg-secondary p-6 rounded-lg shadow-xl border border-accent/30 hover:shadow-accent/20 transition duration-500 fade-on-scroll">
+                        <p class="text-accent text-sm uppercase tracking-widest font-bold mb-1">Editorial</p>
+                        <h3 class="text-2xl font-serif-display font-medium mb-3 text-main">The White City Series</h3>
+                        <p class="text-main/80 text-sm">Collaboration with renowned photographer A. Sharma for a conceptual editorial shoot featured in Studio X Magazine.</p>
+                        <p class="mt-4 text-xs italic text-secondary">— Conceptual Beauty</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Client Reviews Section -->
+            <section id="reviews" class="py-20 sm:py-32 bg-secondary fade-on-scroll">
+                <div class="max-w-5xl mx-auto px-4">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">Client Reviews</h2>
+                        <p class="text-lg text-secondary max-w-2xl mx-auto">Voices from the industry and private clientele.</p>
+                        <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                    </div>
+
+                    <!-- Simple Testimonial Grid --><div class="grid md:grid-cols-3 gap-8">
+                        <div class="p-6 border border-accent/30 rounded-lg shadow-xl bg-primary/80 fade-on-scroll">
+                            <p class="text-accent text-3xl mb-4 leading-none italic">“</p>
+                            <p class="text-main/90 mb-4 ">Thea’s ability to capture the essence of a brief is unmatched. Her work on our last campaign was flawless, delivering true cinematic quality.</p>
+                            <p class="font-medium text-sm uppercase tracking-wider text-accent">- Isabella R. (Creative Director)</p>
+                        </div>
+
+                        <div class="p-6 border border-accent/30 rounded-lg shadow-xl bg-primary/80 fade-on-scroll">
+                            <p class="text-accent text-3xl mb-4 leading-none italic">“</p>
+                            <p class="text-main/90 mb-4 ">My wedding day makeup was everything I dreamed of—elegant, light, and held up perfectly for 12 hours. Pure luxury experience.</p>
+                            <p class="font-medium text-sm uppercase tracking-wider text-accent">- Sarah V. (Bridal Client)</p>
+                        </div>
+
+                        <div class="p-6 border border-accent/30 rounded-lg shadow-xl bg-primary/80 fade-on-scroll">
+                            <p class="text-accent text-3xl mb-4 leading-none italic">“</p>
+                            <p class="text-main/90 mb-4 ">She is the only artist I trust for red carpet events. Thea understands how makeup needs to perform under the lights and on camera.</p>
+                            <p class="font-medium text-sm uppercase tracking-wider text-accent">- Elias G. (Celebrity Stylist)</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 7. Contact Section -->
+            <section id="contact" class="py-20 sm:py-32 max-w-4xl mx-auto px-4 fade-on-scroll">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">Contact</h2>
+                    <p class="text-lg text-secondary max-w-2xl mx-auto">Let's discuss your next editorial, red carpet, or private event booking. Reach out directly below.</p>
+                    <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                </div>
+
+                <!-- Static Contact Details Only --><div class="text-center text-main/90 space-y-4">
+                    <p class="text-lg font-serif-display text-accent">For Booking & Inquiries, please contact:</p>
+                    <p class="mb-2 text-2xl font-medium text-main">Thea M. | Senior Artist</p>
+                    <p class="text-xl">E: <a href="mailto:thea@glamnoir.com" class="text-accent hover:text-main transition duration-300">thea@glamnoir.com</a></p>
+                    <p class="text-sm text-secondary pt-4">We aim to respond to all inquiries within 48 hours.</p>
+                </div>
+            </section>
+        </div>
+        
+        <!-- 2. FULL PORTFOLIO SEPARATE PAGE (Hidden by default) -->
+        <section id="editorial-page" class="bg-primary">
+            <div class="max-w-7xl mx-auto px-4 py-20 sm:py-32">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl sm:text-5xl font-serif-display italic font-light text-accent mb-4">Full Portfolio</h2>
+                    <p class="text-lg text-secondary max-w-2xl mx-auto">Explore the complete collection of high-fashion, magazine, and cinematic looks.</p>
+                    <div class="gradient-divider w-24 mx-auto mt-6"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 portfolio-grid">
+                    <!-- Gallery Item 1: Editorial Look (Full 6 items remain here) --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729620/Editorial_Look_xq68om.png"
+                             alt="High Fashion Editorial Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Editorial+Look+1';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Editorial Feature</p>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 2: Soft Glam Look --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729581/Soft_Glam_Look_rxg7le.png"
+                             alt="Soft Glam Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Soft+Glam';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Soft Cinematic</p>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 3: Soft Make-up (Muted Glow) --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729586/Softie_Editorial_ji4wdy.png"
+                             alt="Muted Glow Make-up"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Muted+Glow';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Muted Glow</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Item 4: Soft Make-up (Runway Prep) --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729587/Soft_Make_up_tbgg89.png"
+                             alt="Runway Prep Make-up"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Runway+Prep';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Runway Prep</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Item 5: Fierce Look --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729589/Fierce_Look_ikp1mb.png"
+                             alt="Fierce Editorial Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Fierce+Look';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Fierce Look</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Item 6: Strong Look --><div class="gallery-item relative overflow-hidden rounded-lg shadow-xl aspect-square">
+                        <img src="https://res.cloudinary.com/duwn5qnpi/image/upload/v1760729587/Strong_Look_wn2zk9.png"
+                             alt="Strong Structured Look"
+                             class="w-full h-full object-cover transition duration-700 ease-in-out transform hover:scale-110"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x600/111111/F7A8B8?text=Structure+Line';" />
+                        <div class="gallery-item-caption absolute inset-0 flex items-center justify-center p-4 text-center">
+                            <p class="font-serif-display text-xl font-medium">Structure & Line</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <!-- Button to return to the landing page -->
+             <div class="text-center py-12">
+                <a href="#hero" class="inline-block text-accent border border-accent/70 px-6 py-2 rounded-full text-sm uppercase tracking-widest hover:bg-accent hover:text-primary transition duration-300">
+                    Back to Home
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer --><footer class="py-10 border-t border-main/10 mt-20 text-center text-xs uppercase tracking-widest text-secondary">
+        <p>&copy; 2025 Glam Noir by Thea. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 0. Declarations (Moved to the top to prevent ReferenceError) ---
+            const landingPage = document.getElementById('landing-page-content');
+            const editorialPage = document.getElementById('editorial-page');
+            const landingPageSections = landingPage.querySelectorAll('.fade-on-scroll');
+            const fadeElements = document.querySelectorAll('.fade-on-scroll'); // All elements that need fading
+
+            // Define observer here so handleRouting can access it
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // Stop observing once visible
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '0px',
+                threshold: 0.1 // Start animation when 10% of the element is visible
+            });
+
+            // --- 1. Routing Logic for Full Portfolio Page ---
+            function handleRouting() {
+                const hash = window.location.hash.substring(1);
+                
+                // --- Logic to Show/Hide Pages ---
+                if (hash === 'full-portfolio') {
+                    landingPage.style.display = 'none';
+                    editorialPage.classList.add('active');
+                    // Scroll to the top of the viewport when routing to the new "page"
+                    window.scrollTo({ top: 0, behavior: 'auto' });
+                } else {
+                    // Default view: Show landing page, hide editorial page
+                    landingPage.style.display = 'block';
+                    editorialPage.classList.remove('active');
+                    // Ensure that when returning, the hash points to the correct section (e.g., #hero)
+                    if (hash === 'hero' || hash === '') {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+                
+                // --- Fade-in Logic Reset (Must run on the landing page content) ---
+                if (landingPage.style.display !== 'none') {
+                    // Re-observe elements on the landing page when it becomes visible
+                    landingPageSections.forEach(element => {
+                         // Reset visibility before observing again
+                        element.classList.remove('is-visible'); 
+                        observer.unobserve(element);
+                        observer.observe(element);
+                    });
+                }
+            }
+
+            // Listen for hash changes
+            window.addEventListener('hashchange', handleRouting);
+            
+            // Initial call on page load
+            handleRouting();
+            
+            // --- 2. Start initial observation (Fade-in on Scroll Animation Logic) ---
+            fadeElements.forEach(element => {
+                observer.observe(element);
+            });
+
+            // Initialize the hero section's fade-in visibility to ensure it loads
+            const heroSection = document.querySelector('#hero .fade-on-scroll');
+            if (heroSection) {
+                heroSection.classList.add('is-visible');
+            }
+
+            // --- 3. Mobile Menu Toggle Logic ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.querySelectorAll('.mobile-nav-link');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when a link is clicked
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Add smooth scrolling to all navigation links (Only for landing page anchors)
+            document.querySelectorAll('#landing-page-content a[href^="#"]').forEach(anchor => {
+                // Ensure only smooth scrolling works for internal links on the landing page
+                if (anchor.getAttribute('href') !== '#full-portfolio') {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        // Get target element
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+
+                        if (targetElement) {
+                            // Calculate offset for fixed header
+                            const headerHeight = document.getElementById('navbar').offsetHeight;
+                            const targetPosition = targetElement.offsetTop - headerHeight + document.getElementById('landing-page-content').offsetTop;
+                            
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                }
+            });
+
+            
+            // --- 4. Theme Toggle Logic (Unchanged) ---
+            const toggleButton = document.getElementById('theme-toggle');
+            const body = document.body;
+            const lightModeClass = 'light';
+
+            function updateToggleIcon() {
+                const isLight = body.classList.contains(lightModeClass);
+                const icon = isLight ?
+                    // Sun icon
+                    '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a1 1 0 011 1v2a1 1 0 01-2 0V3a1 1 0 011-1zm8 8a1 1 0 01-1 1h-2a1 1 0 010-2h2a1 1 0 011 1zm-7 7.7a1 1 0 01.7-.3h.6a1 1 0 010 2h-.6a1 1 0 01-.7-.3l-1.4-1.4a1 1 0 011.4-1.4l1.4 1.4zM3 11a1 1 0 011-1h2a1 1 0 010 2H4a1 1 0 01-1-1zM6.2 6.2a1 1 0 010 1.4l-1.4 1.4a1 1 0 01-1.4-1.4L4.8 6.2a1 1 0 011.4 0zm11.3 0a1 1 0 011.4 0l1.4 1.4a1 1 0 01-1.4 1.4l-1.4-1.4a1 1 0 010-1.4zM12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>' 
+                    : 
+                    // Moon icon
+                    '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21.73 15.34a.97.97 0 00-.73-.34 10 10 0 11-14.73-13 1 1 0 00-.03.77A9.91 9.91 0 0012 22a9.91 9.91 0 008.73-4.57 1 1 0 001-.09z"/></svg>';
+                
+                toggleButton.innerHTML = icon;
+                // Style icon based on current mode
+                toggleButton.classList.toggle('text-main', isLight);
+                toggleButton.classList.toggle('text-accent', !isLight);
+            }
+
+            function checkTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                // Check saved theme or system preference on first visit
+                if (savedTheme === lightModeClass || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                    body.classList.add(lightModeClass);
+                }
+                updateToggleIcon();
+            }
+
+            toggleButton.addEventListener('click', () => {
+                body.classList.toggle(lightModeClass);
+                if (body.classList.contains(lightModeClass)) {
+                    localStorage.setItem('theme', lightModeClass);
+                } else {
+                    localStorage.setItem('theme', 'dark');
+                }
+                updateToggleIcon();
+            });
+
+            // Run theme check on load
+            checkTheme();
+        });
+    </script>
+</body>
+</html>
